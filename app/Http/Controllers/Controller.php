@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Filesystem\Cache;
+use Illuminate\Support\Facades\Redis;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Tymon\JWTAuth\JWTAuth;
 
@@ -21,6 +22,6 @@ class Controller extends BaseController
     public function __construct(JWTAuth $jwt)
     {
         $this->jwt = $jwt;
-
+        $this->redis = Redis::connection();
     }
 }

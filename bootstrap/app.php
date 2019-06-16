@@ -81,8 +81,10 @@ $app->singleton(
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
-# 注册dingo
+# 注册dingo服务
 $app->register(Dingo\Api\Provider\LumenServiceProvider::class);
+# 注册Redis服务
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
 
 
 /*
