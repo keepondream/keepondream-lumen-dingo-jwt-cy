@@ -63,9 +63,9 @@ $app->singleton(
 // ]);
 
 # 注册路由中间件,即可在路由指定使用
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+ $app->routeMiddleware([
+     'auth' => App\Http\Middleware\Authenticate::class,
+ ]);
 
 /*
 |--------------------------------------------------------------------------
@@ -81,8 +81,9 @@ $app->singleton(
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
-# 引入dingo
+# 注册dingo
 $app->register(Dingo\Api\Provider\LumenServiceProvider::class);
+
 
 /*
 |--------------------------------------------------------------------------

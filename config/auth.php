@@ -15,6 +15,7 @@ return [
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'api'),
+        'passwords' => 'users',
     ],
 
     /*
@@ -34,8 +35,27 @@ return [
     |
     */
 
+//    'guards' => [
+//        'api' => ['driver' => 'api'],
+//    ],
+
+    # 更换jwt
     'guards' => [
-        'api' => ['driver' => 'api'],
+        /**
+         * 应用用户
+         */
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
+
+        /**
+         * 后台管理员
+         */
+        'backend' => [
+            'driver' => 'jwt',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -56,7 +76,21 @@ return [
     */
 
     'providers' => [
-        //
+        /**
+         * 应用用户登录
+         */
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\User::class,
+        ],
+
+        /**
+         * 管理员登录
+         */
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\AdminUser::class,
+        ],
     ],
 
     /*

@@ -7,16 +7,18 @@
 
 $api = app('Dingo\Api\Routing\Router');
 
+# 应用路由
 $api->version('v1', ['namespace' => 'App\Http\Controllers'], function ($api) {
-    #测试接口
-    $api->get('version', function () {
-        return response('this is app v1 code');
-    });
-
-    #应用接口
-    $api->group(['prefix' => 'api', 'namespace' => 'Frontend'], function ($api) {
-        $api->get('user', function () {
-            return "this is vi app";
+    $api->group(['prefix' => 'f', 'namespace' => 'Frontend\V1'], function ($api) {
+        #测试接口
+        $api->get('version', function () {
+            return response('this is app v1 code');
         });
+
+        # 用户
+        $api->post('login', 'UserController@login');
+        $api->post('create', 'UserController@create');
+        $api->get('getUser', 'UserController@getUser');
+        $api->get('logout', 'UserController@logout');
     });
 });
