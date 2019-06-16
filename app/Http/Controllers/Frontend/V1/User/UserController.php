@@ -10,13 +10,14 @@ namespace App\Http\Controllers\Frontend\V1\User;
 
 use App\Common\Constants\CONSTANT_RedisKey;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\UserLoginRequest;
 use App\Models\User;
 use Dingo\Api\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function login(Request $request)
+    public function login(UserLoginRequest $request)
     {
         $params = $request->only('mobile', 'password');
         if (!$token = $this->jwt->attempt($params)) {
