@@ -13,17 +13,17 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers'], function ($api) {
         # 用户登录
         $api->post('login', 'User\UserController@login');
         # 用户注册
+        $api->post('register', 'User\UserController@create');
 
         # 认证路由
-        $api->group(['middleware' => 'auth:api'], function ($api) {
-
+        $api->group(['middleware' => 'api'], function ($api) {
             /**
              * 用户模块
              */
             $api->group(['namespace' => 'User'], function ($api) {
-                $api->post('create', 'UserController@create');
-                $api->get('getUser', 'UserController@getUser');
-                $api->get('logout', 'UserController@logout');
+                $api->get('me', 'UserController@me');           # 用户详情
+                $api->get('logout', 'UserController@logout');   # 退出
+                $api->get('refresh', 'UserController@refresh'); # 刷新token
             });
 
         });

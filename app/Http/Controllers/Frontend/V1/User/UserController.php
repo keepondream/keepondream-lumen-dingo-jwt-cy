@@ -11,66 +11,104 @@ namespace App\Http\Controllers\Frontend\V1\User;
 use App\Common\Constants\CONSTANT_RedisKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserLoginRequest;
+use App\Http\Requests\User\UserRegisterRequest;
 use App\Models\User;
 use Dingo\Api\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\JWTAuth;
 
 class UserController extends Controller
 {
+    /**
+     * Description: Get a JWT via given credentials.
+     * Author: WangSx
+     * DateTime: 2019-06-17 15:00
+     * @param UserLoginRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(UserLoginRequest $request)
     {
-        $params = $request->only('mobile', 'password');
-        if (!$token = $this->jwt->attempt($params)) {
-            return response()->json(['user_not_found'], 404);
-        }
-        $mobile = $params['mobile'];
-        // TODO: 先写,之后封services更改
-        # 更新用户token
-        $oldToken = $this->redis->hget(CONSTANT_RedisKey::AUTH_USER_TOKEN, $mobile);
+        $credentials = $request->only('mobile', 'password');
 
-        if (!empty($oldToken) && $oldToken != $token) {
-            $this->jwt->setToken($oldToken)->toUser();
-            $this->jwt->setToken($oldToken)->invalidate();
+        if (! $token = $this->jwt->attempt($credentials)) {
+
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $this->redis->hset(CONSTANT_RedisKey::AUTH_USER_TOKEN, $mobile, $token);
-
-
-        return response()->json(compact('token'));
+        return $this->respondWithToken($token);
     }
 
-    public function create(Request $request)
+    /**
+     * Description: Get the authenticated User.
+     * Author: WangSx
+     * DateTime: 2019-06-17 15:01
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     */
+    public function me()
     {
-        $params = $request->input();
-        if (!empty($params['password'])) {
-            $params['password'] = Hash::make($params['password']);
-        }
-
-        User::create($params);
-
-        $this->response->noContent();
+        $user = $this->jwt->parseToken()->toUser();
+        return $this->respondWithToken('sssssssss');
+        return response()->json($user);
     }
 
-    public function getUser(Request $request)
-    {
-
-//        $token = $this->jwt->getToken();
-//        $this->jwt->user();
-//        $data = $this->jwt->setToken($token)->toUser();
-//        print_r($data);
-
-        $user = $this->jwt->user();
-        return $this->response->array(compact('user'));
-    }
-
+    /**
+     * Description: Log the user out (Invalidate the token).
+     * Author: WangSx
+     * DateTime: 2019-06-17 15:01
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     */
     public function logout()
     {
-        $token = $this->jwt->getToken();
-        $user = $this->jwt->user();
-        $mobile = $user->mobile;
-        $this->jwt->setToken($token)->invalidate();
-        $this->redis->hdel(CONSTANT_RedisKey::AUTH_USER_TOKEN, $mobile);
+        $this->jwt->invalidate();
 
-        return $this->response->noContent();
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    /**
+     * Description: Refresh a token.
+     * Author: WangSx
+     * DateTime: 2019-06-17 15:02
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     */
+    public function refresh()
+    {
+        $token = $this->jwt->parseToken()->refresh();
+        return $this->respondWithToken($token);
+    }
+
+    public function create(UserRegisterRequest $request)
+    {
+        $params = $request->all();
+        $params['password'] = Hash::make($params['password']);
+        $user = User::create($params);
+
+        $token = $this->jwt->fromUser($user);
+
+        return $this->respondWithToken($token);
+    }
+
+    /**
+     * Description: Get the token array structure.
+     * Author: WangSx
+     * DateTime: 2019-06-17 15:03
+     * @param $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        $arr = [
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => $this->jwt->factory()->getTTL() * 60,
+            'ttl_time' => time() + ($this->jwt->factory()->getTTL() * 60),
+            'time' => time()
+        ];
+
+        return $this->response->array($arr);
     }
 }

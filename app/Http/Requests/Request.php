@@ -13,6 +13,15 @@ use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Description:
+ * Author: WangSx
+ * DateTime: 2019-06-17 14:50
+ * Class Request
+ * @package App\Http\Requests
+ * @method \Dingo\Api\Http\Request all()
+ * @method \Dingo\Api\Http\Request input()
+ */
 abstract class Request implements ISelfCheck
 {
     /**

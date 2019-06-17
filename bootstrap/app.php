@@ -21,7 +21,11 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-$app->withFacades();
+//$app->withFacades();
+$app->withFacades(true, [
+    'Tymon\JWTAuth\Facades\JWTAuth' => 'JWTAuth',
+    'Tymon\JWTAuth\Facades\JWTFactory' => 'JWTFactory',
+]);
 
 $app->withEloquent();
 
@@ -65,6 +69,7 @@ $app->singleton(
 # 注册路由中间件,即可在路由指定使用
  $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
+     'api' => \App\Http\Middleware\ApiRefreshToken::class, // 应用前台 api token 认证 和 无痛刷新
  ]);
 
 /*
