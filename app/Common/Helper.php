@@ -10,6 +10,7 @@ namespace App\Common;
 
 use App\Common\Constants\CONSTANT_RedisKey;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -45,7 +46,12 @@ class Helper
         $redis = Redis::connection();
         # 将旧token 加入黑名单,使其登录失效
         if ($oldToken = $redis->hget(CONSTANT_RedisKey::AUTH_USER_TOKEN, $mobile)) {
-            JWTAuth::setToken($oldToken)->invalidate();
+            # 捕获过期令牌,防止程序中断
+            try {
+                JWTAuth::setToken($oldToken)->invalidate();
+            } catch (\Exception $e) {
+                Log::debug('单点登录,token过期 ' . $e->getMessage());
+            }
         }
         # 设置新token
         $redis->hset(CONSTANT_RedisKey::AUTH_USER_TOKEN, $mobile, $token);
