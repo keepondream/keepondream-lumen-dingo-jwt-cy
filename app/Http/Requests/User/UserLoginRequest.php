@@ -1,6 +1,6 @@
 <?php
 /**
- * Description:
+ * Description: 用户登录验证器
  * Author: WangSx
  * DateTime: 2019-06-16 23:38
  */
@@ -12,14 +12,23 @@ use App\Http\Requests\Request;
 
 class UserLoginRequest extends Request
 {
-
-    protected function getValidateParams()
+    /**
+     * Author: WangSx
+     * DateTime: 2019-06-18 17:42
+     * @return \Dingo\Api\Http\Request
+     */
+    public function getValidateParams()
     {
         $params = $this->all();
 
         return $params;
     }
 
+    /**
+     * Author: WangSx
+     * DateTime: 2019-06-18 17:42
+     * @return array
+     */
     protected function getValidateRules()
     {
         $rules = [
@@ -30,6 +39,11 @@ class UserLoginRequest extends Request
         return $rules;
     }
 
+    /**
+     * Author: WangSx
+     * DateTime: 2019-06-18 17:43
+     * @return array
+     */
     protected function getCustomAttributes()
     {
         return [

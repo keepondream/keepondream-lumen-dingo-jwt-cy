@@ -7,6 +7,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Common\Helper;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -31,7 +32,6 @@ class ApiRefreshToken extends BaseMiddleware
         $this->checkForToken($request);
 
 
-
         // 使用 try 包裹，以捕捉 token 过期所抛出的 TokenExpiredException  异常
         try {
             // 检测用户的登录状态，如果正常则通过
@@ -46,6 +46,9 @@ class ApiRefreshToken extends BaseMiddleware
                 $token = $this->auth->refresh();
                 // 使用一次性登录以保证此次请求的成功
                 Auth::guard('api')->onceUsingId($this->auth->manager()->getPayloadFactory()->buildClaimsCollection()->toPlainArray()['sub']);
+                $user = $this->auth->user();
+                # 单点登录,刷新api用户token,旧token加入黑名单
+                Helper::updateUserRedisToken($user->mobile, $token);
             } catch (JWTException $exception) {
                 // 如果捕获到此异常，即代表 refresh 也过期了，用户无法刷新令牌，需要重新登录。
                 throw new UnauthorizedHttpException('jwt-auth', $exception->getMessage());

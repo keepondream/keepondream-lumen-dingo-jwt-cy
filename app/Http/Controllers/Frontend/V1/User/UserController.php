@@ -7,108 +7,109 @@
 
 namespace App\Http\Controllers\Frontend\V1\User;
 
-
-use App\Common\Constants\CONSTANT_RedisKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserLoginRequest;
 use App\Http\Requests\User\UserRegisterRequest;
-use App\Models\User;
-use Dingo\Api\Http\Request;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\JWTAuth;
+use App\Services\ServiceManager;
+use App\Services\User\UserService;
 
 class UserController extends Controller
 {
     /**
-     * Description: Get a JWT via given credentials.
+     * Description: 登录
      * Author: WangSx
-     * DateTime: 2019-06-17 15:00
+     * DateTime: 2019-06-18 12:41
      * @param UserLoginRequest $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \ReflectionException
      */
     public function login(UserLoginRequest $request)
     {
-        $credentials = $request->only('mobile', 'password');
+        $requestData = $request->only('mobile', 'password');
 
-        if (! $token = $this->jwt->attempt($credentials)) {
-
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if (!$data = self::getService()->login($requestData)) {
+            $this->response()->errorMethodNotAllowed();
         }
 
-        return $this->respondWithToken($token);
+        return $this->response->array($data);
     }
 
     /**
-     * Description: Get the authenticated User.
+     * Description: 获取用户详情
      * Author: WangSx
-     * DateTime: 2019-06-17 15:01
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     * DateTime: 2019-06-18 14:00
+     * @return mixed
+     * @throws \ReflectionException
      */
     public function me()
     {
-        $user = $this->jwt->parseToken()->toUser();
-        return $this->respondWithToken('sssssssss');
-        return response()->json($user);
+        $data = self::getService()->detail();
+
+        return $this->response->array($data);
     }
 
     /**
-     * Description: Log the user out (Invalidate the token).
+     * Description: 退出
      * Author: WangSx
-     * DateTime: 2019-06-17 15:01
+     * DateTime: 2019-06-18 14:05
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     * @throws \ReflectionException
      */
     public function logout()
     {
-        $this->jwt->invalidate();
+        self::getService()->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->response->array(['message' => 'Successfully logged out']);
     }
 
     /**
-     * Description: Refresh a token.
+     * Description: 刷新token接口  ;  自动无痛刷新在中间件里的header中返回
      * Author: WangSx
-     * DateTime: 2019-06-17 15:02
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     * DateTime: 2019-06-18 14:21
+     * @return \Dingo\Api\Http\Response
+     * @throws \ReflectionException
      */
     public function refresh()
     {
-        $token = $this->jwt->parseToken()->refresh();
-        return $this->respondWithToken($token);
-    }
+        $token = self::getService()->refreshToken();
 
-    public function create(UserRegisterRequest $request)
-    {
-        $params = $request->all();
-        $params['password'] = Hash::make($params['password']);
-        $user = User::create($params);
+        if ($token) {
+            return $this->response()->array(compact('token'));
+        } else {
+            return $this->response->noContent();
+        }
 
-        $token = $this->jwt->fromUser($user);
-
-        return $this->respondWithToken($token);
     }
 
     /**
-     * Description: Get the token array structure.
+     * Description: 注册
      * Author: WangSx
-     * DateTime: 2019-06-17 15:03
-     * @param $token
-     * @return \Illuminate\Http\JsonResponse
+     * DateTime: 2019-06-18 14:31
+     * @param UserRegisterRequest $request
+     * @return mixed
+     * @throws \ReflectionException
      */
-    protected function respondWithToken($token)
+    public function register(UserRegisterRequest $request)
     {
-        $arr = [
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => $this->jwt->factory()->getTTL() * 60,
-            'ttl_time' => time() + ($this->jwt->factory()->getTTL() * 60),
-            'time' => time()
-        ];
+        $requestData = $request->getValidateParams();
+        $data = self::getService()->create($requestData);
 
-        return $this->response->array($arr);
+        if ($data) {
+            return $this->response->array($data);
+        }
+
+        return $this->response->array(['msg' => '创建失败!~']);
+    }
+
+    /**
+     * Description:
+     * Author: WangSx
+     * DateTime: 2019-06-18 12:33
+     * @return UserService
+     * @throws \ReflectionException
+     */
+    public static function getService(): UserService
+    {
+        return ServiceManager::getInstance()->userService(UserService::class);
     }
 }

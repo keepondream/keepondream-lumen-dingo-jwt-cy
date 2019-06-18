@@ -13,7 +13,7 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers'], function ($api) {
         # 用户登录
         $api->post('login', 'User\UserController@login');
         # 用户注册
-        $api->post('register', 'User\UserController@create');
+        $api->post('register', 'User\UserController@register');
 
         # 认证路由
         $api->group(['middleware' => 'api'], function ($api) {
