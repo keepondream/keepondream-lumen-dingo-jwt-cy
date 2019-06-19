@@ -120,8 +120,10 @@ class UserService extends Service implements UserInterface
     {
         $user = JWTAuth::parseToken()->authenticate();
         $token = JWTAuth::parseToken()->refresh();
-        # 单点登录,更新Redis
-        Helper::updateUserRedisToken($user->mobile, $token);
+        if (!empty($token)) {
+            # 单点登录,更新Redis
+            Helper::updateUserRedisToken($user->mobile, $token);
+        }
 
         return $token;
     }

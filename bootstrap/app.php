@@ -65,11 +65,14 @@ $app->singleton(
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
+ $app->middleware([
+     'cross' => App\Http\Middleware\CrossHttp::class
+ ]);
 
 # 注册路由中间件,即可在路由指定使用
  $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
-     'api' => \App\Http\Middleware\ApiRefreshToken::class, // 应用前台 api token 认证 和 无痛刷新
+     'api' => App\Http\Middleware\ApiRefreshToken::class, // 应用前台 api token 认证 和 无痛刷新
  ]);
 
 /*
