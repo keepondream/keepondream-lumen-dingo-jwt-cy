@@ -15,8 +15,8 @@ class UserRegisterRequest extends Request
 {
     /**
      * Author: WangSx
-     * DateTime: 2019-06-18 17:41
-     * @return \Dingo\Api\Http\Request
+     * DateTime: 2019-06-19 16:00
+     * @return \Dingo\Api\Http\Request|array
      */
     public function getValidateParams()
     {

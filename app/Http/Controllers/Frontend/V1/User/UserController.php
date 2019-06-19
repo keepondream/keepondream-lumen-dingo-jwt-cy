@@ -26,12 +26,11 @@ class UserController extends Controller
     public function login(UserLoginRequest $request)
     {
         $requestData = $request->only('mobile', 'password');
-
         if (!$data = self::getService()->login($requestData)) {
-            $this->response()->errorMethodNotAllowed();
+            return failed('账号或密码错误!~');
         }
 
-        return $this->response->array($data);
+        return success($data);
     }
 
     /**
@@ -45,7 +44,7 @@ class UserController extends Controller
     {
         $data = self::getService()->detail();
 
-        return $this->response->array($data);
+        return success($data);
     }
 
     /**
@@ -59,7 +58,7 @@ class UserController extends Controller
     {
         self::getService()->logout();
 
-        return $this->response->array(['message' => 'Successfully logged out']);
+        return success('', 'Successfully logged out');
     }
 
     /**
@@ -73,12 +72,7 @@ class UserController extends Controller
     {
         $token = self::getService()->refreshToken();
 
-        if ($token) {
-            return $this->response()->array(compact('token'));
-        } else {
-            return $this->response->noContent();
-        }
-
+        return success($token);
     }
 
     /**
@@ -91,14 +85,12 @@ class UserController extends Controller
      */
     public function register(UserRegisterRequest $request)
     {
-        $requestData = $request->getValidateParams();
-        $data = self::getService()->create($requestData);
-
+        $data = self::getService()->create($request->getValidateParams());
         if ($data) {
-            return $this->response->array($data);
+            return success($data);
         }
 
-        return $this->response->array(['msg' => '创建失败!~']);
+        return failed('注册失败!~');
     }
 
     /**
