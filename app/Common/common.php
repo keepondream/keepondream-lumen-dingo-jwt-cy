@@ -8,15 +8,15 @@
 use App\Common\Helper;
 
 if (!function_exists('success')) {
-    function success($data = [], $msg = '请求成功', $code = 200)
+    function success($data = [], $message = '请求成功', $status_code = 200)
     {
-        return Helper::success($data, $msg, $code);
+        return Helper::success($data, $message, $status_code);
     }
 }
 
 if (!function_exists('failed')) {
-    function failed($msg = '请求失败!~', $code = 400, $data = [])
+    function failed($message = '请求失败!~', $status_code = 400, $data = [])
     {
-        return Helper::failed($msg, $code, $data);
+        return Helper::failed($message, $status_code, $data);
     }
 }

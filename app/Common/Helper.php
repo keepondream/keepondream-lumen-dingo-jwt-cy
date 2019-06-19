@@ -88,14 +88,14 @@ class Helper extends ResourceManager
      * Author: WangSx
      * DateTime: 2019-06-19 15:06
      * @param array $data 响应数据数组
-     * @param string $msg 响应消息
-     * @param int $code 响应编码
+     * @param string $message 响应消息
+     * @param int $status_code 响应编码
      * @return mixed
      * @throws \ReflectionException
      */
-    public static function success($data = [], $msg = '请求成功!', $code = Response::HTTP_OK)
+    public static function success($data = [], $message = '请求成功!', $status_code = Response::HTTP_OK)
     {
-        return static::getInstance()->response->array(compact('code', 'msg', 'data'));
+        return static::getInstance()->response->array(compact('status_code', 'message', 'data'));
     }
 
     /**
@@ -103,15 +103,15 @@ class Helper extends ResourceManager
      * 与common.php 中的 failed 函数一致
      * Author: WangSx
      * DateTime: 2019-06-19 15:12
-     * @param string $msg 响应消息
-     * @param int $code 响应编码
+     * @param string $message 响应消息
+     * @param int $status_code 响应编码
      * @param array $data 响应数据数组
      * @return mixed
      * @throws \ReflectionException
      */
-    public static function failed($msg = '请求失败!~', $code = Response::HTTP_BAD_REQUEST, $data = [])
+    public static function failed($message = '请求失败!~', $status_code = Response::HTTP_BAD_REQUEST, $data = [])
     {
-        return static::getInstance()->response->array(compact('code', 'msg', 'data'));
+        return static::getInstance()->response->array(compact('status_code', 'message', 'data'));
     }
 }
 
