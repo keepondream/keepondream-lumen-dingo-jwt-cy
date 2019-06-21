@@ -9,6 +9,7 @@ namespace App\Services;
 
 
 use App\Common\BaseClasses\ResourceManager;
+use App\Services\AdminUser\AdminUserService;
 use App\Services\User\UserService;
 
 /**
@@ -19,6 +20,7 @@ use App\Services\User\UserService;
  * @package App\Services
  * 语法糖 方法申明 类名
  * @method UserService userService(string $fullClassName)
+ * @method AdminUserService adminUserService(string $fullClassName)
  */
 class ServiceManager extends ResourceManager
 {

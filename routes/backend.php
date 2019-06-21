@@ -20,8 +20,9 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers'], function ($api) {
              */
             $api->group(['namespace' => 'AdminUser'], function ($api) {
                 $api->post('create', 'AdminUserController@create');
-                $api->get('getUser', 'AdminUserController@getUser');
-                $api->get('logout', 'AdminUserController@logout');
+                $api->get('me', 'AdminUserController@me');           # 用户详情
+                $api->get('logout', 'AdminUserController@logout');   # 退出
+                $api->get('refresh', 'AdminUserController@refresh'); # 刷新token
             });
 
         });

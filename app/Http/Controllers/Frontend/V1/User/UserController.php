@@ -58,7 +58,7 @@ class UserController extends Controller
     {
         self::getService()->logout();
 
-        return success('', 'Successfully logged out');
+        return success('', '退出成功!');
     }
 
     /**

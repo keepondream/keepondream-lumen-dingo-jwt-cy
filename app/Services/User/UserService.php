@@ -13,11 +13,81 @@ use App\Common\Helper;
 use App\Models\User;
 use App\Services\ConstructInterfaces\User\UserInterface;
 use App\Services\Service;
-use Illuminate\Support\Facades\Redis;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserService extends Service implements UserInterface
 {
+    /**
+     * Description: 登录
+     * Author: WangSx
+     * DateTime: 2019-06-18 13:00
+     * @param $requestData
+     * @return array
+     */
+    public function login($requestData)
+    {
+        $arr = [];
+        $access_token = $this->getApiJwt()->attempt($requestData);
+        if ($access_token) {
+            $token_type = 'Bearer';
+            $expire = time() + ($this->getApiJwt()->factory()->getTTL() * 60);
+            # 单点登录,更新Redis,token
+            Helper::updateUserRedisToken($requestData['mobile'], $access_token, $this);
+
+            $arr = compact('access_token', 'token_type', 'expire');
+        }
+
+        return $arr;
+    }
+
+    /**
+     * Description: 获取当前用户信息
+     * Author: WangSx
+     * DateTime: 2019-06-18 13:53
+     * @return array
+     */
+    public function detail()
+    {
+        $data = $this->getApiJwt()->user()->toArray();
+
+        return $data;
+    }
+
+    /**
+     * Description: 退出
+     * Author: WangSx
+     * DateTime: 2019-06-18 14:04
+     * @return bool
+     */
+    public function logout()
+    {
+        $token = $this->getApiJwt()->getToken()->get();
+        $user = $this->getApiJwt()->user();
+        $this->getApiJwt()->setToken($token)->invalidate();
+        $this->getApiJwt()->logout();
+        # 清除前台用户的token
+        $this->getRedis()->hdel(CONSTANT_RedisKey::AUTH_USER_TOKEN, $user->mobile);
+
+        return true;
+    }
+
+    /**
+     * Description: 刷新token
+     * Author: WangSx
+     * DateTime: 2019-06-18 14:13
+     * @return mixed
+     */
+    public function refreshToken()
+    {
+        $user = $this->getApiJwt()->user();
+        $token = $this->getApiJwt()->refresh();
+        if (!empty($token)) {
+            # 单点登录,更新Redis
+            Helper::updateUserRedisToken($user->mobile, $token, $this);
+        }
+
+        return $token;
+    }
+
     /**
      * Description: 创建用户
      * Author: WangSx
@@ -31,7 +101,7 @@ class UserService extends Service implements UserInterface
 
         if ($user) {
             # 生成前台api用户token
-            $data['token'] = Helper::fromUser($user);
+            $data['token'] = Helper::fromUser($user, $this);
         }
 
         return $data;
@@ -51,82 +121,5 @@ class UserService extends Service implements UserInterface
     {
         // TODO: Implement deleteById() method.
     }
-
-    /**
-     * Description: 登录
-     * Author: WangSx
-     * DateTime: 2019-06-18 13:00
-     * @param $requestData
-     * @return array
-     */
-    public function login($requestData)
-    {
-        $arr = [];
-        $token = JWTAuth::attempt($requestData);
-
-        # 单点登录,更新Redis,token
-        Helper::updateUserRedisToken($requestData['mobile'], $token);
-
-        if ($token) {
-            $arr = [
-                'access_token' => $token,
-                'token_type' => 'bearer',
-                'expires_in' => JWTAuth::factory()->getTTL() * 60,
-                'ttl_time' => time() + (JWTAuth::factory()->getTTL() * 60),
-                'time' => time()
-            ];
-        }
-
-        return $arr;
-    }
-
-    /**
-     * Description: 获取当前用户信息
-     * Author: WangSx
-     * DateTime: 2019-06-18 13:53
-     * @return array
-     */
-    public function detail()
-    {
-        $data = JWTAuth::parseToken()->toUser()->toArray();
-
-        return $data;
-    }
-
-    /**
-     * Description: 退出
-     * Author: WangSx
-     * DateTime: 2019-06-18 14:04
-     * @return bool
-     */
-    public function logout()
-    {
-        $user = jwtauth::parsetoken()->touser();
-        JWTAuth::parseToken()->invalidate();
-
-        # 清除前台用户的token
-        $this->redis->hdel(CONSTANT_RedisKey::AUTH_USER_TOKEN, $user->mobile);
-
-        return true;
-    }
-
-    /**
-     * Description: 刷新token
-     * Author: WangSx
-     * DateTime: 2019-06-18 14:13
-     * @return mixed
-     */
-    public function refreshToken()
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-        $token = JWTAuth::parseToken()->refresh();
-        if (!empty($token)) {
-            # 单点登录,更新Redis
-            Helper::updateUserRedisToken($user->mobile, $token);
-        }
-
-        return $token;
-    }
-
 
 }

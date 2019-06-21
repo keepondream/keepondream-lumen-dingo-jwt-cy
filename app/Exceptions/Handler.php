@@ -33,7 +33,7 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception $exception
+     * @param \Exception $exception
      * @return void
      */
     public function report(Exception $exception)
@@ -44,8 +44,8 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Exception $exception
+     * @param \Illuminate\Http\Request $request
+     * @param \Exception $exception
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function render($request, Exception $exception)
@@ -75,7 +75,7 @@ class Handler extends ExceptionHandler
             return failed(CONSTANT_ErrCodes::getError(403), 403);
         }
 
-        // 用户认证的异常,黑名单
+        // 用户认证异常/无token
         if ($exception instanceof UnauthorizedHttpException) {
             return failed(CONSTANT_ErrCodes::getError(10004), 10004);
         }

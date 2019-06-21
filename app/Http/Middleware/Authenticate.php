@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Common\Constants\CONSTANT_ErrCodes;
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
@@ -17,7 +18,7 @@ class Authenticate
     /**
      * Create a new middleware instance.
      *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
+     * @param \Illuminate\Contracts\Auth\Factory $auth
      * @return void
      */
     public function __construct(Auth $auth)
@@ -28,15 +29,15 @@ class Authenticate
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $guard
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
+     * @param string|null $guard
      * @return mixed
      */
     public function handle($request, Closure $next, $guard = null)
     {
         if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+            return failed(CONSTANT_ErrCodes::getError(10002), 10002);
         }
 
         return $next($request);

@@ -16,7 +16,7 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers'], function ($api) {
         $api->post('register', 'User\UserController@register');
 
         # 认证路由
-        $api->group(['middleware' => 'api'], function ($api) {
+        $api->group(['middleware' => 'auth:api'], function ($api) {
             /**
              * 用户模块
              */
@@ -25,6 +25,17 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers'], function ($api) {
                 $api->get('logout', 'UserController@logout');   # 退出
                 $api->get('refresh', 'UserController@refresh'); # 刷新token
             });
+
+
+            /**
+             * 行为模块
+             */
+
+
+            /**
+             * 货币模块
+             */
+
 
         });
     });

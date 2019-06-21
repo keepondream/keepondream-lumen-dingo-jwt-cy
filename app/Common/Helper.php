@@ -10,12 +10,12 @@ namespace App\Common;
 
 use App\Common\BaseClasses\ResourceManager;
 use App\Common\Constants\CONSTANT_RedisKey;
+use App\Models\AdminUser;
 use App\Models\User;
+use App\Services\Service;
 use Dingo\Api\Http\Response;
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * Description:
@@ -44,42 +44,87 @@ class Helper extends ResourceManager
     /**
      * Description: 生成前台api用户token并单点登录存储,
      * Author: WangSx
-     * DateTime: 2019-06-18 16:45
+     * DateTime: 2019-06-21 17:27
      * @param User $user
+     * @param Service $service
      * @return mixed
      */
-    public static function fromUser(User $user)
+    public static function fromUser(User $user, Service $service)
     {
-        $token = JWTAuth::fromUser($user);
+        $token = $service->getApiJwt()->fromUser($user);
 
         if (!empty($token)) {
-            Helper::updateUserRedisToken($user->mobile, $token);
+            Helper::updateUserRedisToken($user->mobile, $token, $service);
         }
 
         return $token;
     }
 
     /**
-     * Description: 单点登录,用于记录用户token,当token变更后使旧token加入黑名单
+     * Description: 生成后台backend用户token并单点登录存储,
      * Author: WangSx
-     * DateTime: 2019-06-18 16:49
-     * @param int $mobile api用户手机号
-     * @param string $token api用户新token
+     * DateTime: 2019-06-21 17:29
+     * @param AdminUser $user
+     * @param Service $service
+     * @return mixed
      */
-    public static function updateUserRedisToken(int $mobile, string $token)
+    public static function fromAdminUser(AdminUser $user, Service $service)
     {
-        $redis = Redis::connection();
+        $token = $service->getBackendJwt()->fromUser($user);
+
+        if (!empty($token)) {
+            Helper::updateUserRedisToken($user->mobile, $token, $service);
+        }
+
+        return $token;
+    }
+
+    /**
+     * Description: 单点登录,用于记录api用户token,当token变更后使旧token加入黑名单
+     * Author: WangSx
+     * DateTime: 2019-06-21 15:11
+     * @param int $mobile
+     * @param string $token
+     * @param Service $service 任意service的子类 即所有service都可以
+     */
+    public static function updateUserRedisToken(int $mobile, string $token, Service $service)
+    {
+        $redis = $service->getRedis();
         # 将旧token 加入黑名单,使其登录失效
         if ($oldToken = $redis->hget(CONSTANT_RedisKey::AUTH_USER_TOKEN, $mobile)) {
             # 捕获过期令牌,防止程序中断
             try {
-                JWTAuth::setToken($oldToken)->invalidate();
+                $service->getApiJwt()->setToken($oldToken)->invalidate();
             } catch (\Exception $e) {
-                Log::debug('单点登录,token过期 ' . $e->getMessage());
+                Log::debug('单点登录 api ,token过期 ' . $e->getMessage());
             }
         }
         # 设置新token
         $redis->hset(CONSTANT_RedisKey::AUTH_USER_TOKEN, $mobile, $token);
+    }
+
+    /**
+     * Description: 单点登录,用于记录backend用户token,当token变更后使旧token加入黑名单
+     * Author: WangSx
+     * DateTime: 2019-06-21 15:17
+     * @param int $mobile
+     * @param string $token
+     * @param Service $service 任意service的子类 即所有service都可以
+     */
+    public static function updateAdminUserRedisToken(int $mobile, string $token, Service $service)
+    {
+        $redis = $service->getRedis();
+        # 旧token 入黑名单
+        if ($oldToken = $redis->hget(CONSTANT_RedisKey::AUTH_ADMIN_USER_TOKEN, $mobile)) {
+            # 捕获过期令牌
+            try {
+                $service->getBackendJwt()->setToken($oldToken)->invalidate();
+            } catch (\Exception $e) {
+                Log::debug('单点登录 backend ,token过期 ' . $e->getMessage());
+            }
+        }
+        # 设置新token
+        $redis->hset(CONSTANT_RedisKey::AUTH_ADMIN_USER_TOKEN, $mobile, $token);
     }
 
     /**
@@ -113,5 +158,6 @@ class Helper extends ResourceManager
     {
         return static::getInstance()->response->array(compact('status_code', 'message', 'data'));
     }
+
 }
 
