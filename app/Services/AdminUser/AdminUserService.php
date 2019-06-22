@@ -42,10 +42,8 @@ class AdminUserService extends Service implements AdminUserInterface
 
     public function logout()
     {
-        $token = $this->getBackendJwt()->getToken();
         $user = $this->getBackendJwt()->user();
-        $this->getBackendJwt()->setToken($token)->invalidate();
-        $this->getBackendJwt()->logout();
+        $this->getBackendJwt()->logout(true);
         # 清除前台用户的token
         $this->getRedis()->hdel(CONSTANT_RedisKey::AUTH_ADMIN_USER_TOKEN, $user->mobile);
 

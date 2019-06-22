@@ -60,10 +60,8 @@ class UserService extends Service implements UserInterface
      */
     public function logout()
     {
-        $token = $this->getApiJwt()->getToken()->get();
         $user = $this->getApiJwt()->user();
-        $this->getApiJwt()->setToken($token)->invalidate();
-        $this->getApiJwt()->logout();
+        $this->getApiJwt()->logout(true);
         # 清除前台用户的token
         $this->getRedis()->hdel(CONSTANT_RedisKey::AUTH_USER_TOKEN, $user->mobile);
 
@@ -79,7 +77,7 @@ class UserService extends Service implements UserInterface
     public function refreshToken()
     {
         $user = $this->getApiJwt()->user();
-        $token = $this->getApiJwt()->refresh();
+        $token = $this->getApiJwt()->refresh(true,true);
         if (!empty($token)) {
             # 单点登录,更新Redis
             Helper::updateUserRedisToken($user->mobile, $token, $this);
