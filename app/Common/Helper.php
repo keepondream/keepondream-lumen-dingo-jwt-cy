@@ -51,13 +51,17 @@ class Helper extends ResourceManager
      */
     public static function fromUser(User $user, Service $service)
     {
-        $token = $service->getApiJwt()->fromUser($user);
+        $arr = [];
+        $access_token = $service->getApiJwt()->fromUser($user);
+        $token_type = 'Bearer';
+        $expire_time = time() + ($service->getApiJwt()->factory()->getTTL() * 60);
 
-        if (!empty($token)) {
-            Helper::updateUserRedisToken($user->mobile, $token, $service);
+        if (!empty($access_token)) {
+            Helper::updateUserRedisToken($user->mobile, $access_token, $service);
+            $arr = compact('access_token', 'token_type', 'expire_time');
         }
 
-        return $token;
+        return $arr;
     }
 
     /**
@@ -96,7 +100,7 @@ class Helper extends ResourceManager
             try {
                 $service->getApiJwt()->setToken($oldToken)->invalidate();
             } catch (\Exception $e) {
-                Log::debug('单点登录 api ,token过期 ' . $e->getMessage());
+                Log::debug('api单点登录 ,token过期 ' . $e->getMessage());
             }
         }
         # 设置新token

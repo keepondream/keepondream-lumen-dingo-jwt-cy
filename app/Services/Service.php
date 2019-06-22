@@ -9,6 +9,7 @@ namespace App\Services;
 
 
 use Illuminate\Support\Facades\Redis;
+use Tymon\JWTAuth\JWT;
 use Tymon\JWTAuth\JWTGuard;
 
 abstract class Service
@@ -19,12 +20,12 @@ abstract class Service
     protected $redis = null;
 
     /**
-     * @var JWTGuard
+     * @var JWTGuard|JWT
      */
     protected $api_jwt = null;
 
     /**
-     * @var JWTGuard
+     * @var JWTGuard|JWT
      */
     protected $backend_jwt = null;
 
@@ -60,7 +61,7 @@ abstract class Service
     /**
      * Author: WangSx
      * DateTime: 2019-06-22 10:25
-     * @return JWTGuard
+     * @return JWTGuard|JWT
      */
     public function getApiJwt()
     {
@@ -70,7 +71,7 @@ abstract class Service
     /**
      * Author: WangSx
      * DateTime: 2019-06-22 10:25
-     * @return JWTGuard
+     * @return JWTGuard|JWT
      */
     public function getBackendJwt()
     {

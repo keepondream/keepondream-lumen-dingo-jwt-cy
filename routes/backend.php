@@ -19,10 +19,12 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers'], function ($api) {
              * 管理员模块
              */
             $api->group(['namespace' => 'AdminUser'], function ($api) {
-                $api->post('create', 'AdminUserController@create');
-                $api->get('me', 'AdminUserController@me');           # 用户详情
-                $api->get('logout', 'AdminUserController@logout');   # 退出
-                $api->get('refresh', 'AdminUserController@refresh'); # 刷新token
+                $api->post('create', 'AdminUserController@create');     # 创建管理员
+                $api->get('me', 'AdminUserController@me');              # 用户详情
+                $api->get('logout', 'AdminUserController@logout');      # 退出
+                $api->get('refresh', 'AdminUserController@refresh');    # 刷新token
+                $api->get('update', 'AdminUserController@update');      # 更新
+
             });
 
         });

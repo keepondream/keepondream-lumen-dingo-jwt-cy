@@ -9,13 +9,21 @@ namespace App\Http\Controllers\Backend\V1\AdminUser;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminUser\AdminUserCreateRequest;
 use App\Http\Requests\AdminUser\AdminUserLoginRequest;
 use App\Services\AdminUser\AdminUserService;
 use App\Services\ServiceManager;
-use Dingo\Api\Http\Request;
 
 class AdminUserController extends Controller
 {
+    /**
+     * Description: 管理员登录
+     * Author: WangSx
+     * DateTime: 2019-06-22 15:06
+     * @param AdminUserLoginRequest $request
+     * @return mixed
+     * @throws \ReflectionException
+     */
     public function login(AdminUserLoginRequest $request)
     {
         $requestData = $request->only('mobile', 'password');
@@ -26,10 +34,17 @@ class AdminUserController extends Controller
         return success($data);
     }
 
-
-    public function create(Request $request)
+    /**
+     * Description: 创建管理员
+     * Author: WangSx
+     * DateTime: 2019-06-22 15:10
+     * @param AdminUserCreateRequest $request
+     * @return mixed
+     * @throws \ReflectionException
+     */
+    public function create(AdminUserCreateRequest $request)
     {
-        $data = self::getService()->detail();
+        $data = self::getService()->create($request->getValidateParams());
 
         return success($data);
     }

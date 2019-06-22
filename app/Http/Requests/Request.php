@@ -10,6 +10,7 @@ namespace App\Http\Requests;
 
 use App\Common\Interfaces\ISelfCheck;
 use Dingo\Api\Exception\ValidationHttpException;
+use Dingo\Api\Http\Request as DingoRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -19,18 +20,16 @@ use Illuminate\Support\Facades\Validator;
  * DateTime: 2019-06-17 14:50
  * Class Request
  * @package App\Http\Requests
- * @method \Dingo\Api\Http\Request all()
- * @method \Dingo\Api\Http\Request input()
  */
 abstract class Request implements ISelfCheck
 {
     /**
-     * @var \Dingo\Api\Http\Request
+     * @var DingoRequest
      */
     protected $request;
 
 
-    public function __construct(\Dingo\Api\Http\Request $request)
+    public function __construct(DingoRequest $request)
     {
         $this->request = $request;
 

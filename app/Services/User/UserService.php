@@ -29,11 +29,11 @@ class UserService extends Service implements UserInterface
         $access_token = $this->getApiJwt()->attempt($requestData);
         if ($access_token) {
             $token_type = 'Bearer';
-            $expire = time() + ($this->getApiJwt()->factory()->getTTL() * 60);
+            $expire_time = time() + ($this->getApiJwt()->factory()->getTTL() * 60);
             # 单点登录,更新Redis,token
             Helper::updateUserRedisToken($requestData['mobile'], $access_token, $this);
 
-            $arr = compact('access_token', 'token_type', 'expire');
+            $arr = compact('access_token', 'token_type', 'expire_time');
         }
 
         return $arr;
@@ -77,7 +77,7 @@ class UserService extends Service implements UserInterface
     public function refreshToken()
     {
         $user = $this->getApiJwt()->user();
-        $token = $this->getApiJwt()->refresh(true,true);
+        $token = $this->getApiJwt()->refresh(true, true);
         if (!empty($token)) {
             # 单点登录,更新Redis
             Helper::updateUserRedisToken($user->mobile, $token, $this);
@@ -95,14 +95,15 @@ class UserService extends Service implements UserInterface
      */
     public function create(array $data)
     {
+        $arr = [];
         $user = User::create($data);
 
         if ($user) {
             # 生成前台api用户token
-            $data['token'] = Helper::fromUser($user, $this);
+            $arr = Helper::fromUser($user, $this);
         }
 
-        return $data;
+        return $arr;
     }
 
     public function update(array $data)
