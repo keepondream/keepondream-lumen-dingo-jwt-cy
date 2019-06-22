@@ -10,6 +10,7 @@ namespace App\Services\AdminUser;
 
 use App\Common\Constants\CONSTANT_RedisKey;
 use App\Common\Helper;
+use App\Events\AdminUserLogEvent;
 use App\Models\AdminUser;
 use App\Services\ConstructInterfaces\AdminUser\AdminUserInterface;
 use App\Services\Service;
@@ -33,6 +34,10 @@ class AdminUserService extends Service implements AdminUserInterface
             # 单点登录,更新Redis,token
             Helper::updateAdminUserRedisToken($requestData['mobile'], $access_token, $this);
 
+            $admin_user = $this->getBackendJwt()->user();
+            $admin_user->last_login_time = time();
+            $admin_user->save();
+            event(new AdminUserLogEvent($admin_user->id, '登录系统'));
             $arr = compact('access_token', 'token_type', 'expire');
         }
 

@@ -26,7 +26,7 @@ class AdminUser extends Model implements AuthenticatableContract, AuthorizableCo
      * @var array
      */
     protected $fillable = [
-        'mobile', 'nick_name', 'is_black', 'password'
+        'mobile', 'nick_name', 'is_black', 'password', 'last_login_time'
     ];
 
     /**
