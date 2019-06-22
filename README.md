@@ -1,4 +1,4 @@
-## 基于lumen创建的原始架构设计
+## 基于lumen创建的初始设计
 - version: 5.8.* 
 - author: WangSx
 ### 设计初衷,要点:
@@ -32,4 +32,5 @@
     + config
     + readme
     + routes
+    + supervisor supervisor监听队列ini
     + tests
