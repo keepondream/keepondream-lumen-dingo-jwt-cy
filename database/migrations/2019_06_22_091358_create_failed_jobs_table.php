@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateFailedJobsTable extends Migration
 {
@@ -21,6 +21,18 @@ class CreateFailedJobsTable extends Migration
             $table->longText('exception');
             $table->timestamp('failed_at')->useCurrent();
         });
+
+        Schema::create('jobs', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('queue');
+            $table->longText('payload');
+            $table->tinyInteger('attempts')->unsigned();
+            $table->tinyInteger('reserved')->unsigned();
+            $table->unsignedInteger('reserved_at')->nullable();
+            $table->unsignedInteger('available_at');
+            $table->unsignedInteger('created_at');
+            $table->index(['queue', 'reserved', 'reserved_at']);
+        });
     }
 
     /**
@@ -31,5 +43,6 @@ class CreateFailedJobsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('failed_jobs');
+        Schema::dropIfExists('jobs');
     }
 }
