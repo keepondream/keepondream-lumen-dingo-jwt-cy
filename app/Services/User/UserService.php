@@ -72,18 +72,22 @@ class UserService extends Service implements UserInterface
      * Description: 刷新token
      * Author: WangSx
      * DateTime: 2019-06-18 14:13
-     * @return mixed
+     * @return array
      */
     public function refreshToken()
     {
+        $arr = [];
         $user = $this->getApiJwt()->user();
-        $token = $this->getApiJwt()->refresh(true, true);
-        if (!empty($token)) {
+        $access_token = $this->getApiJwt()->refresh(true, true);
+        if (!empty($access_token)) {
+            $token_type = 'Bearer';
+            $expire_time = time() + ($this->getApiJwt()->factory()->getTTL() * 60);
             # 单点登录,更新Redis
-            Helper::updateUserRedisToken($user->mobile, $token, $this);
+            Helper::updateUserRedisToken($user->mobile, $access_token, $this);
+            $arr = compact('access_token', 'token_type', 'expire_time');
         }
 
-        return $token;
+        return $arr;
     }
 
     /**
@@ -91,7 +95,7 @@ class UserService extends Service implements UserInterface
      * Author: WangSx
      * DateTime: 2019-06-18 14:35
      * @param array $data
-     * @return mixed|void
+     * @return array
      */
     public function create(array $data)
     {

@@ -74,13 +74,17 @@ class Helper extends ResourceManager
      */
     public static function fromAdminUser(AdminUser $user, Service $service)
     {
-        $token = $service->getBackendJwt()->fromUser($user);
+        $arr = [];
+        $access_token = $service->getBackendJwt()->fromUser($user);
+        $token_type = 'Bearer';
+        $expire_time = time() + ($service->getApiJwt()->factory()->getTTL() * 60);
 
-        if (!empty($token)) {
-            Helper::updateUserRedisToken($user->mobile, $token, $service);
+        if (!empty($access_token)) {
+            Helper::updateAdminUserRedisToken($user->mobile, $access_token, $service);
+            $arr = compact('access_token', 'token_type', 'expire_time');
         }
 
-        return $token;
+        return $arr;
     }
 
     /**

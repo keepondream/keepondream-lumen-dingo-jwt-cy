@@ -63,6 +63,23 @@ class AdminUserController extends Controller
     }
 
     /**
+     * Description: refresh
+     * Author: WangSx
+     * DateTime: 2019-06-23 16:29
+     * @return mixed
+     * @throws \ReflectionException
+     */
+    public function refresh()
+    {
+        if ($token = self::getService()->refreshToken()) {
+            return success($token);
+        } else {
+            return failed('token 刷新失败!~');
+        }
+
+    }
+
+    /**
      * Description: 退出
      * Author: WangSx
      * DateTime: 2019-06-21 17:58

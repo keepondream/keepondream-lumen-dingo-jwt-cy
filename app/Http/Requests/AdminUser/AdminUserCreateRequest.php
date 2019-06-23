@@ -9,13 +9,17 @@ namespace App\Http\Requests\AdminUser;
 
 
 use App\Http\Requests\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminUserCreateRequest extends Request
 {
 
     public function getValidateParams()
     {
-        return $this->all();
+        $params = $this->all();
+        $params['password'] = Hash::make($params['password']);
+
+        return $params;
     }
 
     protected function getValidateRules()

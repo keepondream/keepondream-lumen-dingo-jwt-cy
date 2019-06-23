@@ -60,6 +60,29 @@ class AdminUserService extends Service implements AdminUserInterface
     }
 
     /**
+     * Description: refresh token
+     * Author: WangSx
+     * DateTime: 2019-06-23 16:27
+     * @return array
+     */
+    public function refreshToken()
+    {
+        $arr = [];
+        $admin_user = $this->getBackendJwt()->user();
+        $access_token = $this->getBackendJwt()->refresh(true, true);
+        if (!empty($access_token)) {
+            $token_type = 'Bearer';
+            $expire_time = time() + ($this->getApiJwt()->factory()->getTTL() * 60);
+            # 单点
+            Helper::updateAdminUserRedisToken($admin_user->mobile, $access_token, $this);
+
+            $arr = compact('access_token', 'token_type', 'expire_time');
+        }
+
+        return $arr;
+    }
+
+    /**
      * Description: 退出
      * Author: WangSx
      * DateTime: 2019-06-22 15:18
@@ -99,6 +122,9 @@ class AdminUserService extends Service implements AdminUserInterface
      */
     public function create(array $data)
     {
-        return AdminUser::create($data);
+        if ($res = AdminUser::create($data)) {
+            return $res->toArray();
+        }
+        return [];
     }
 }

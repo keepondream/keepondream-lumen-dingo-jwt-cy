@@ -70,9 +70,12 @@ class UserController extends Controller
      */
     public function refresh()
     {
-        $token = self::getService()->refreshToken();
+        if (!empty($token = self::getService()->refreshToken())) {
+            return success($token);
+        } else {
+            return failed('token 刷新失败!~');
+        }
 
-        return success($token);
     }
 
     /**

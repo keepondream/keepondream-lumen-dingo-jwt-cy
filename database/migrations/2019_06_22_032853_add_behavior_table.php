@@ -69,6 +69,7 @@ class AddBehaviorTable extends Migration
     public function down()
     {
         Schema::dropIfExists('currencies');
+        Schema::dropIfExists('user_currencies');
         Schema::dropIfExists('behaviors');
         Schema::dropIfExists('behavior_logs');
     }
