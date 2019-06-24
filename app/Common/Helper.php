@@ -148,7 +148,8 @@ class Helper extends ResourceManager
      */
     public static function success($data = [], $message = '请求成功!', $status_code = Response::HTTP_OK)
     {
-        return static::getInstance()->response->array(compact('status_code', 'message', 'data'));
+        $time = time();
+        return static::getInstance()->response->array(compact('status_code', 'message', 'time', 'data'));
     }
 
     /**
@@ -164,7 +165,8 @@ class Helper extends ResourceManager
      */
     public static function failed($message = '请求失败!~', $status_code = Response::HTTP_BAD_REQUEST, $data = [])
     {
-        return static::getInstance()->response->array(compact('status_code', 'message', 'data'));
+        $time = time();
+        return static::getInstance()->response->array(compact('status_code', 'message', 'time', 'data'));
     }
 
 }
