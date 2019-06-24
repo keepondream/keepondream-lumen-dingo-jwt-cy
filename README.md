@@ -49,3 +49,6 @@ Author: WangSx
 				User # 用户模块
 	+ FrontendTestCase.php # **应用api测试case基类,已实现用户认证**
 	+ BackendTestCase.php # **后台管理测试case基类,已实现用户认证**
+	
+	
+	定版
