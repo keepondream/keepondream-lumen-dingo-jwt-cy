@@ -1,0 +1,21 @@
+<?php
+/**
+ * Description: $className interface
+ * Author: WangSx
+ * DateTime: $date $time
+ */
+
+namespace $nameSpace;
+
+
+use App\Common\Interfaces\ServiceInterface;
+
+/**
+ * Author: WangSx
+ * DateTime: $date $time
+ * Interface $className
+ */
+interface $className extends ServiceInterface
+{
+
+}

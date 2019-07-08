@@ -1,0 +1,63 @@
+<?php
+/**
+ * Description: $className validation params
+ * Author: WangSx
+ * DateTime: $date $time
+ */
+
+namespace $nameSpace;
+
+
+use App\Http\Requests\Request;
+
+/**
+ * Author: WangSx
+ * DateTime: $date $time
+ * Class $className
+ */
+class $className extends Request
+{
+
+    /**
+     * Description: 获取参数
+     * Author: WangSx
+     * DateTime: $date $time
+     * @return mixed
+     */
+    public function getValidateParams()
+    {
+        $params = $this->all();
+
+        return $params;
+    }
+
+    /**
+     * Description: 获取字段验证规则
+     * Author: WangSx
+     * DateTime: $date $time
+     * @return array
+     */
+    protected function getValidateRules()
+    {
+        $rules = [
+            'id' => ['required','int']
+        ];
+
+        return $rules;
+    }
+
+    /**
+     * Description: 字段注解
+     * Author: WangSx
+     * DateTime: $date $time
+     * @return array
+     */
+    protected function getCustomAttributes()
+    {
+        return [
+            'id' => 'ID'
+        ];
+    }
+
+}
+
