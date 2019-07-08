@@ -1,0 +1,70 @@
+<?php
+/**
+ * Description: $className service
+ * Author: WangSx
+ * DateTime: $date $time
+ */
+
+namespace $nameSpace;
+
+
+use App\Services\ConstructInterfaces\$folderName\$classNameInterface;
+use App\Services\Service;
+
+/**
+ * Author: WangSx
+ * DateTime: $date $time
+ * Class $className
+ * @package $nameSpace
+ */
+class $className extends Service implements $classNameInterface
+{
+
+    /**
+     * Description: create
+     * Author: WangSx
+     * DateTime: $date $time
+     * @param array $data
+     * @return mixed|void
+     */
+    public function create(array $data)
+    {
+        // TODO: Implement create() method.
+    }
+
+    /**
+     * Description: update
+     * Author: WangSx
+     * DateTime: $date $time
+     * @param array $data
+     * @return mixed|void
+     */
+    public function update(array $data)
+    {
+        // TODO: Implement update() method.
+    }
+
+    /**
+     * Description: deleteById
+     * Author: WangSx
+     * DateTime: $date $time
+     * @param int $id
+     * @return mixed|void
+     */
+    public function deleteById(int $id)
+    {
+        // TODO: Implement deleteById() method.
+    }
+
+    /**
+     * Description: getById
+     * Author: WangSx
+     * DateTime: $date $time
+     * @param int $id
+     * @return mixed|void
+     */
+    public function getById(int $id)
+    {
+        // TODO: Implement getById() method.
+    }
+}

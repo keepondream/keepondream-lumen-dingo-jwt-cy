@@ -1,0 +1,35 @@
+<?php
+/**
+ * Description:
+ * Author: WangSx
+ * DateTime: $date $time
+ */
+
+namespace $nameSpace;
+
+
+use App\Http\Controllers\Controller;
+use $fullServiceNameSpace;
+use App\Services\ServiceManager;
+
+/**
+ * Author: WangSx
+ * DateTime: $date $time
+ * Class $className
+ * @package $nameSpace
+ */
+class $className extends Controller
+{
+
+    /**
+     * Description: static get $serviceName
+     * Author: WangSx
+     * DateTime: $date $time
+     * @return AdminUserLogService
+     * @throws \ReflectionException
+     */
+    public static function getService(): $serviceName
+    {
+        return ServiceManager::getInstance()->$lServiceName($serviceName::class);
+    }
+}

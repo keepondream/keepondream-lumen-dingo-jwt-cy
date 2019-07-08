@@ -76,13 +76,19 @@ class CreateRequestServiceController extends Command
 
     protected const CREATE_FILES = [
         'request' => self::REQUEST_OPTION,
-        'controller' => 'Controller',
+        'serviceInterface' => 'ServiceInterface',
         'service' => 'Service',
-        'serviceInterface' => 'ServiceInterface'
+        'controller' => 'Controller',
     ];
 
     protected const STUB_FILE_PATH = self::BASE_PATH . 'Console' . DIRECTORY_SEPARATOR . 'Commands' . DIRECTORY_SEPARATOR . 'CodeGenCommands' . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'ServiceFile';
 
+
+    protected $fullServiceNameSpace;
+
+    protected $serviceName;
+
+    protected $lServiceName;
 
     public function __construct(Filesystem $filesystem, Composer $composer)
     {
@@ -118,9 +124,9 @@ class CreateRequestServiceController extends Command
 
         $this->create_dirs = [
             'request' => self::REQUEST_PATH,
-            'controller' => self::CONTROLLER_PATH . $controller_dir,
+            'serviceInterface' => self::SERVICE_CONSTRUCT_SERVICES_PATH,
             'service' => self::SERVICE_PATH,
-            'serviceInterface' => self::SERVICE_CONSTRUCT_SERVICES_PATH
+            'controller' => self::CONTROLLER_PATH . $controller_dir,
         ];
 
 
@@ -199,6 +205,7 @@ class CreateRequestServiceController extends Command
                 $files = $createFiles[$k];
                 foreach ($files as $file) {
                     $templateData = $this->getTemplateData($k);
+                    $templateData['folderName'] = $this->folderName;
                     $templateData['fileName'] = $this->modelName . $file;
                     $templateData['className'] = $this->modelName . $file;
                     // 进行模板渲染
@@ -242,8 +249,33 @@ class CreateRequestServiceController extends Command
             'folderName' => $this->folderName,
             'fileName' => $fileName,
             'className' => $fileName,
-            'nameSpace' => $nameSpace
+            'nameSpace' => $nameSpace,
+            'lClassName' => lcfirst($fileName),
+            'serviceName' => $this->serviceName,
+            'lServiceName' => $this->lServiceName,
+            'fullServiceNameSpace' => $this->fullServiceNameSpace
         ];
+
+        # 服务层则进行service注入
+        if ($k == 'service') {
+            $serviceFileName = self::SERVICE_PATH . DIRECTORY_SEPARATOR . 'ServiceManager.php';
+            $serviceFileContent = $this->files->get($serviceFileName);
+
+            $outServiceFile = preg_replace('/;(\s)*?\/\*\*/', ';
+use ' . $nameSpace . '\\' . $fileName . ';
+
+/**', $serviceFileContent);
+
+            $outServiceFile = preg_replace('/\)(\s)*?\*\//', ')
+ * @method ' . $fileName . ' ' . lcfirst($fileName) . '(string $fullClassName)
+ */', $outServiceFile);
+            $this->files->put($serviceFileName, $outServiceFile);
+            $this->serviceName = $fileName;
+            $this->lServiceName = lcfirst($fileName);
+            $this->fullServiceNameSpace = $nameSpace . '\\' . $fileName;
+
+            $this->info('ServiceManager.php init success');
+        }
 
         return $templateVar;
     }
