@@ -28,6 +28,10 @@ class CrossHttp
             $response = $next($request);
         }
 
+        if (empty($response)) {
+            return $response;
+        }
+
         // 允许跨域访问
         if ($request->headers->has('origin')) {
             $this->addHeader($response, 'Access-Control-Allow-Origin', $request->headers->get('origin'));
