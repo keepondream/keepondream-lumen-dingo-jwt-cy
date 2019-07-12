@@ -11,6 +11,8 @@ namespace App\Services\AdminUser;
 use App\Common\Constants\CONSTANT_RedisKey;
 use App\Common\Helper;
 use App\Events\AdminUserLogEvent;
+use App\Exceptions\BOExceptions\AdminUserBOException;
+use App\Exceptions\Mapping\BOErrCodeMsgMapping;
 use App\Models\AdminUser;
 use App\Services\ConstructInterfaces\AdminUser\AdminUserInterface;
 use App\Services\Service;
@@ -26,22 +28,20 @@ class AdminUserService extends Service implements AdminUserInterface
      */
     public function login($requestData)
     {
-        $arr = [];
         $access_token = $this->getBackendJwt()->attempt($requestData);
-        if ($access_token) {
-            $token_type = 'Bearer';
-            $expire = time() + ($this->getBackendJwt()->factory()->getTTL() * 60);
-            # 单点登录,更新Redis,token
-            Helper::updateAdminUserRedisToken($requestData['mobile'], $access_token, $this);
 
-            $admin_user = $this->getBackendJwt()->user();
-            $admin_user->last_login_time = time();
-            $admin_user->save();
-            event(new AdminUserLogEvent($admin_user->id, '登录系统'));
-            $arr = compact('access_token', 'token_type', 'expire');
-        }
+        !empty($access_token) || AdminUserBOException::errCode(BOErrCodeMsgMapping::ADMIN_USER_LOGIN_FAILED);
 
-        return $arr;
+        $token_type = 'Bearer';
+        $expire = time() + ($this->getBackendJwt()->factory()->getTTL() * 60);
+        # 单点登录,更新Redis,token
+        Helper::updateAdminUserRedisToken($requestData['mobile'], $access_token, $this);
+
+        $admin_user = $this->getBackendJwt()->user();
+        $admin_user->last_login_time = time();
+        $admin_user->save();
+        event(new AdminUserLogEvent($admin_user->id, '登录系统'));
+        return compact('access_token', 'token_type', 'expire');
 
     }
 
@@ -67,19 +67,16 @@ class AdminUserService extends Service implements AdminUserInterface
      */
     public function refreshToken()
     {
-        $arr = [];
         $admin_user = $this->getBackendJwt()->user();
         $access_token = $this->getBackendJwt()->refresh(true, true);
-        if (!empty($access_token)) {
-            $token_type = 'Bearer';
-            $expire_time = time() + ($this->getApiJwt()->factory()->getTTL() * 60);
-            # 单点
-            Helper::updateAdminUserRedisToken($admin_user->mobile, $access_token, $this);
+        !empty($access_token) || AdminUserBOException::errCode(BOErrCodeMsgMapping::ADMIN_USER_REFRESH_FAILED);
 
-            $arr = compact('access_token', 'token_type', 'expire_time');
-        }
+        $token_type = 'Bearer';
+        $expire_time = time() + ($this->getApiJwt()->factory()->getTTL() * 60);
+        # 单点
+        Helper::updateAdminUserRedisToken($admin_user->mobile, $access_token, $this);
 
-        return $arr;
+        return compact('access_token', 'token_type', 'expire_time');
     }
 
     /**

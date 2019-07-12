@@ -17,7 +17,8 @@
 
 # 应用接口所有异常统一处理,可扩展hook
 app('api.exception')->register(function (Exception $exception) {
-    $request = \Illuminate\Http\Request::capture();
+//    $request = \Illuminate\Http\Request::capture();
+    $request = \Dingo\Api\Http\Request::capture();
     return app('App\Exceptions\Handler')->render($request, $exception);
 });
 

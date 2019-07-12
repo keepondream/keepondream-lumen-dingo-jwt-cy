@@ -1,0 +1,7 @@
+[
+  {
+    "name": "AdminUserBOException",
+    "min": 11001,
+    "max": 11999
+  }
+]

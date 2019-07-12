@@ -27,10 +27,7 @@ class AdminUserController extends Controller
     public function login(AdminUserLoginRequest $request)
     {
         $requestData = $request->only('mobile', 'password');
-        if (!$data = self::getService()->login($requestData)) {
-            return failed('账号或密码错误!~');
-        }
-
+        $data = self::getService()->login($requestData);
         return success($data);
     }
 
@@ -71,12 +68,8 @@ class AdminUserController extends Controller
      */
     public function refresh()
     {
-        if ($token = self::getService()->refreshToken()) {
-            return success($token);
-        } else {
-            return failed('token 刷新失败!~');
-        }
-
+        $token = self::getService()->refreshToken();
+        return success($token);
     }
 
     /**

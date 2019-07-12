@@ -68,6 +68,12 @@ class CreateRequestServiceController extends Command
 
     protected const CONTROLLER_PATH = self::BASE_PATH . 'Http' . DIRECTORY_SEPARATOR . 'Controllers';
 
+    protected const EXCEPTIONS_PATH = self::BASE_PATH . 'Exceptions';
+
+    protected const BO_EXCEPTIONS_PATH = self::EXCEPTIONS_PATH . DIRECTORY_SEPARATOR . 'BOExceptions';
+
+    protected const EXCEPTION_CODE_JSON_PATH = self::EXCEPTIONS_PATH . DIRECTORY_SEPARATOR . 'code_min_max.json';
+
     protected $create_dirs = [];
 
     protected const REQUEST_OPTION = [
@@ -79,6 +85,7 @@ class CreateRequestServiceController extends Command
         'serviceInterface' => 'ServiceInterface',
         'service' => 'Service',
         'controller' => 'Controller',
+        'BOException' => 'BOException'
     ];
 
     protected const STUB_FILE_PATH = self::BASE_PATH . 'Console' . DIRECTORY_SEPARATOR . 'Commands' . DIRECTORY_SEPARATOR . 'CodeGenCommands' . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'ServiceFile';
@@ -175,7 +182,11 @@ class CreateRequestServiceController extends Command
         if (is_array($createFiles[$k])) {
             return $this->create_dirs[$k] . DIRECTORY_SEPARATOR . $this->folderName . DIRECTORY_SEPARATOR . $this->modelName . $createFiles[$k][$index] . '.php';
         } else {
-            return $this->create_dirs[$k] . DIRECTORY_SEPARATOR . $this->folderName . DIRECTORY_SEPARATOR . $this->modelName . $createFiles[$k] . '.php';
+            if ($k == 'BOException') {
+                return self::BO_EXCEPTIONS_PATH . DIRECTORY_SEPARATOR . $this->modelName . $createFiles[$k] . '.php';
+            } else {
+                return $this->create_dirs[$k] . DIRECTORY_SEPARATOR . $this->folderName . DIRECTORY_SEPARATOR . $this->modelName . $createFiles[$k] . '.php';
+            }
         }
     }
 
@@ -240,8 +251,38 @@ class CreateRequestServiceController extends Command
             $fileName = $this->modelName . $createFiles[$k];
         }
 
-        $dirs = $this->create_dirs;
-        $dir = $dirs[$k] . DIRECTORY_SEPARATOR . $this->folderName;
+        # 获取
+        if ($k == 'BOException') {
+            $dir = self::BO_EXCEPTIONS_PATH;
+            $code_min_max_json = $this->files->get(self::EXCEPTION_CODE_JSON_PATH);
+            $data = json_decode($code_min_max_json, true);
+            $newData = [];
+            foreach ($data as $v) {
+                if ($v['name'] == $fileName) {
+                    $newData['name'] = $v['name'];
+                    $newData['min'] = $v['min'];
+                    $newData['max'] = $v['max'];
+                }
+            }
+            if (empty($newData)) {
+                $referData = end($data);
+                $newData = [
+                    'name' => $fileName,
+                    'min' => $referData['min'] + 1000,
+                    'max' => $referData['max'] + 1000
+                ];
+                array_push($data, $newData);
+            }
+
+            $min_code = $newData['min'];
+            $max_code = $newData['max'];
+            $this->files->put(self::EXCEPTION_CODE_JSON_PATH, json_encode($data, JSON_UNESCAPED_UNICODE));
+        } else {
+            $dirs = $this->create_dirs;
+            $dir = $dirs[$k] . DIRECTORY_SEPARATOR . $this->folderName;
+            $min_code = 0;
+            $max_code = 0;
+        }
         $nameSpace = str_replace('/', '\\', $dir);
         $templateVar = [
             'date' => $this->date,
@@ -253,7 +294,9 @@ class CreateRequestServiceController extends Command
             'lClassName' => lcfirst($fileName),
             'serviceName' => $this->serviceName,
             'lServiceName' => $this->lServiceName,
-            'fullServiceNameSpace' => $this->fullServiceNameSpace
+            'fullServiceNameSpace' => $this->fullServiceNameSpace,
+            'min_code' => $min_code,
+            'max_code' => $max_code
         ];
 
         # 服务层则进行service注入

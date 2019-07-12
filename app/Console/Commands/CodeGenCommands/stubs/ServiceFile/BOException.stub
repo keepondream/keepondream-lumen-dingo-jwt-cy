@@ -1,0 +1,54 @@
+<?php
+/**
+ * Description: 错误码区间类
+ * Author: WangSx
+ * DateTime: $date $time
+ */
+
+namespace $nameSpace;
+
+
+use App\Exceptions\Base\BaseSingleStatic;
+
+/**
+ * Author: WangSx
+ * DateTime: $date $time
+ * Class $className
+ * @package $nameSpace
+ */
+class $className extends BaseSingleStatic
+{
+    /**
+     * 当前异常类 code 最小取值范围
+     */
+    const CODE_MIN = $min_code;
+
+    /**
+     * 当前异常类 code 最大取值范围
+     */
+    const CODE_MAX = $max_code;
+
+    /**
+     * Description: 获取当前类最小错误码
+     * Author: WangSx
+     * DateTime: $date $time
+     * @return int
+     */
+    protected function getCodeMin(): int
+    {
+        return self::CODE_MIN;
+    }
+
+    /**
+     * Description: 获取当前类最大错误码
+     * Author: WangSx
+     * DateTime: $date $time
+     * @return int
+     */
+    protected function getCodeMax(): int
+    {
+        return self::CODE_MAX;
+    }
+
+}
+

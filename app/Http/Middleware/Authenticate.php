@@ -2,7 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Common\Constants\CONSTANT_ErrCodes;
+use App\Exceptions\Mapping\SysBOErrCodeMsgMapping;
+use App\Exceptions\SyExceptions\SysException;
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
@@ -37,7 +38,7 @@ class Authenticate
     public function handle($request, Closure $next, $guard = null)
     {
         if ($this->auth->guard($guard)->guest()) {
-            return failed(CONSTANT_ErrCodes::getError(10002), 10002);
+            return SysException::errCode(SysBOErrCodeMsgMapping::TOKEN_TIMEOUT);
         }
 
         return $next($request);
