@@ -272,11 +272,12 @@ class CreateRequestServiceController extends Command
                     'max' => $referData['max'] + 1000
                 ];
                 array_push($data, $newData);
+                $this->files->put(self::EXCEPTION_CODE_JSON_PATH, json_encode($data, JSON_UNESCAPED_UNICODE));
+                $this->info('code_min_max.json init success');
             }
 
             $min_code = $newData['min'];
             $max_code = $newData['max'];
-            $this->files->put(self::EXCEPTION_CODE_JSON_PATH, json_encode($data, JSON_UNESCAPED_UNICODE));
         } else {
             $dirs = $this->create_dirs;
             $dir = $dirs[$k] . DIRECTORY_SEPARATOR . $this->folderName;
