@@ -19,14 +19,14 @@ class CreateRequestServiceController extends Command
      *
      * @var string
      */
-    protected $signature = 'controller:create {modelName}';
+    protected $signature = 'controller:create {modelName} {--e}';
 
     /**
      * 控制台命令说明。
      *
      * @var string
      */
-    protected $description = 'create Request Service Controller';
+    protected $description = 'create Request Service Controller modelName {--e start exception template}';
 
     /**
      * @var Filesystem
@@ -97,6 +97,8 @@ class CreateRequestServiceController extends Command
 
     protected $lServiceName;
 
+    protected $exception;
+
     public function __construct(Filesystem $filesystem, Composer $composer)
     {
         parent::__construct();
@@ -113,6 +115,14 @@ class CreateRequestServiceController extends Command
      */
     public function handle()
     {
+        $exception = $this->option('e');
+
+        if (!empty($exception)) {
+            $this->exception = true;
+        } else {
+            $this->exception = false;
+        }
+
         $fullModelName = $this->argument('modelName');
         $name_arr = explode('/', $fullModelName);
         $modelName = array_pop($name_arr);
@@ -223,9 +233,19 @@ class CreateRequestServiceController extends Command
                     $renderStubs[$k][] = $this->getRenderStub($templateData, $stub);
                 }
             } else {
-                $templateData = $this->getTemplateData($k);
-                // 进行模板渲染
-                $renderStubs[$k] = $this->getRenderStub($templateData, $stub);
+                # 过滤是否开启exception模板
+                if (!$this->exception) {
+                    # 没有开启exception模板,则进行过滤
+                    if ($k != 'BOException') {
+                        $templateData = $this->getTemplateData($k);
+                        // 进行模板渲染
+                        $renderStubs[$k] = $this->getRenderStub($templateData, $stub);
+                    }
+                } else {
+                    $templateData = $this->getTemplateData($k);
+                    // 进行模板渲染
+                    $renderStubs[$k] = $this->getRenderStub($templateData, $stub);
+                }
             }
         }
 
