@@ -3,3 +3,7 @@
 Homestead.json
 Homestead.yaml
 .env
+/.DS_Store
+/app/.DS_Store
+/app/Console/.DS_Store
+
