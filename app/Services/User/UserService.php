@@ -110,10 +110,11 @@ class UserService extends Service implements UserInterface
         return $arr;
     }
 
-    public function update(array $data)
+    public function update(array $data, int $id)
     {
         // TODO: Implement update() method.
     }
+
 
     public function getById(int $id)
     {

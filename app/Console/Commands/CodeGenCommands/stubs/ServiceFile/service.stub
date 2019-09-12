@@ -37,9 +37,10 @@ class $className extends Service implements $classNameInterface
      * Author: WangSx
      * DateTime: $date $time
      * @param array $data
+     * @param int $id
      * @return mixed|void
      */
-    public function update(array $data)
+    public function update(array $data,int $id)
     {
         // TODO: Implement update() method.
     }

@@ -325,15 +325,21 @@ class CreateRequestServiceController extends Command
             $serviceFileName = self::SERVICE_PATH . DIRECTORY_SEPARATOR . 'ServiceManager.php';
             $serviceFileContent = $this->files->get($serviceFileName);
 
-            $outServiceFile = preg_replace('/;(\s)*?\/\*\*/', ';
+            $sure_namespace_content = 'use ' . $nameSpace . '\\' . $fileName;
+
+            $sure_namespace = strpos($serviceFileContent, $sure_namespace_content);
+            if ($sure_namespace === false) {
+                $outServiceFile = preg_replace('/;(\s)*?\/\*\*/', ';
 use ' . $nameSpace . '\\' . $fileName . ';
 
 /**', $serviceFileContent);
 
-            $outServiceFile = preg_replace('/\)(\s)*?\*\//', ')
+                $outServiceFile = preg_replace('/\)(\s)*?\*\//', ')
  * @method ' . $fileName . ' ' . lcfirst($fileName) . '(string $fullClassName)
  */', $outServiceFile);
-            $this->files->put($serviceFileName, $outServiceFile);
+                $this->files->put($serviceFileName, $outServiceFile);
+            }
+
             $this->serviceName = $fileName;
             $this->lServiceName = lcfirst($fileName);
             $this->fullServiceNameSpace = $nameSpace . '\\' . $fileName;

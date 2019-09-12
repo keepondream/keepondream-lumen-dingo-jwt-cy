@@ -95,10 +95,11 @@ class AdminUserService extends Service implements AdminUserInterface
         return true;
     }
 
-    public function update(array $data)
+    public function update(array $data, int $id)
     {
         // TODO: Implement update() method.
     }
+
 
     public function getById(int $id)
     {

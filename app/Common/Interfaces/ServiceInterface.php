@@ -22,11 +22,12 @@ interface ServiceInterface
     /**
      * Description: 更新
      * Author: WangSx
-     * DateTime: 2019-06-18 10:22
+     * DateTime: 2019-06-26 16:09
      * @param array $data
+     * @param int $id
      * @return mixed
      */
-    public function update(array $data);
+    public function update(array $data,int $id);
 
     /**
      * Description: 根据主键获取详情
